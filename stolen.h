@@ -1,3 +1,8 @@
+// Copyright (c) 2014 Blockstream
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+
 extern "C" {
 bool hex_to_bytes(const char* c, unsigned char* res, unsigned int len);
 const char* contract_str_to_bytes(const char* c, unsigned char* res);

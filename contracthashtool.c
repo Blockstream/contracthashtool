@@ -1,3 +1,7 @@
+// Copyright (c) 2014 Blockstream
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif

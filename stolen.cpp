@@ -1,4 +1,11 @@
+// Copyright (c) 2014 Blockstream
+// Copyright (c) 2012-2014 The Bitcoin developers
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 // Things stolen from Bitcoin Core......
+
+
 
 #include <string>
 #include <vector>
