@@ -15,3 +15,5 @@ To build
 ========
 
 Install https://github.com/bitcoin/secp256k1
+
+Use ldconfig so that the ld cache knows about the existence of secp256k1.
