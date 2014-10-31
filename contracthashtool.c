@@ -208,7 +208,7 @@ int main(int argc, char* argv[]) {
 				unsigned char res[32];
 				hmac_sha256(res, keys_work[i], data, 4 + 16 + (ascii_contract ? strlen(ascii_contract) : 20));
 				
-				if (secp256k1_ecdsa_pubkey_tweak_add(keys_work[i], 33, res) == 0) {
+				if (secp256k1_ec_pubkey_tweak_add(keys_work[i], 33, res) == 0) {
 					if (nonce_hex)
 						ERROREXIT("YOU BROKE SHA256, PLEASE SEND THE EXACT DATA USED IN A BUG REPORT\n");
 					break; // if tweak > order
@@ -249,13 +249,13 @@ int main(int argc, char* argv[]) {
 		    memcpy(data + 4 + sizeof(nonce), p2sh_bytes,     sizeof(p2sh_bytes));
 
 		int len = 0;
-		if (secp256k1_ecdsa_pubkey_create(pub, &len, priv, 1) != 1 || len != 33)
+		if (secp256k1_ec_pubkey_create(pub, &len, priv, 1) != 1 || len != 33)
 			ERROREXIT("Private key was invalid\n");
 
 		unsigned char tweak[32];
 		hmac_sha256(tweak, pub, data, 4 + 16 + (ascii_contract ? strlen(ascii_contract) : 20));
 
-		if (secp256k1_ecdsa_privkey_tweak_add(priv, tweak) != 1)
+		if (secp256k1_ec_privkey_tweak_add(priv, tweak) != 1)
 			ERROREXIT("Tweak is invalid\n");
 
 		priv[32] = 1;
