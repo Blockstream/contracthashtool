@@ -42,24 +42,24 @@ int get_pubkeys_from_redeemscript(unsigned char *redeem_script, unsigned int red
 			push_start = readpos + 1;
 		} else if (*readpos == 76) {
 			if (readpos + 1 >= endpos)
-				ERROREXIT("Invalid push in script");
+				ERROREXIT("Invalid push in script\n");
 			pushlen = *(readpos + 1);
 			push_start = readpos + 2;
 		} else if (*readpos == 77) {
 			if (readpos + 2 >= endpos)
-				ERROREXIT("Invalid push in script");
+				ERROREXIT("Invalid push in script\n");
 			pushlen = *(readpos + 1) | (*(readpos + 2) << 8);
 			push_start = readpos + 3;
 		} else if (*readpos == 78) {
 			if (readpos + 4 >= endpos)
-				ERROREXIT("Invalid push in script");
+				ERROREXIT("Invalid push in script\n");
 			pushlen = *(readpos + 1) | (*(readpos + 2) << 8) | (*(readpos + 3) << 16) | (*(readpos + 4) << 24);
 			push_start = readpos + 5;
 		}
 
 		if (pushlen > -1) {
 			if (push_start + pushlen >= endpos)
-				ERROREXIT("Invalid push in script");
+				ERROREXIT("Invalid push in script\n");
 
 			if (pushlen == 65 && *push_start == 4)
 				ERROREXIT("ERROR: Possible uncompressed pubkey found in redeem script, not converting it\n");
@@ -85,7 +85,7 @@ int get_pubkeys_from_redeemscript(unsigned char *redeem_script, unsigned int red
 				else
 					ERROREXIT("ERROR: Found possible public keys but are not using them as they are not followed immediately by [OP_N] OP_CHECK[MULTI]SIG[VERIFY]\n");
 			} else if (*readpos >= 172 && *readpos <= 175)
-				ERROREXIT("ERROR: Found OP_CHECK[MULTI]SIG[VERIFY] without pubkey(s) immediately preceeding it");
+				ERROREXIT("ERROR: Found OP_CHECK[MULTI]SIG[VERIFY] without pubkey(s) immediately preceeding it\n");
 		}
 
 		if (pushlen != -1)

@@ -11,6 +11,7 @@
 #include <vector>
 #include <string.h>
 #include <assert.h>
+#include <stdio.h>
 
 #include "stolen.h"
 
@@ -188,7 +189,10 @@ std::string EncodeBase58Check(const std::vector<unsigned char>& vchIn)
 enum Base58Type {
 	PUBKEY_ADDRESS = 0,
 	SCRIPT_ADDRESS = 5,
-	SECRET_KEY = 128
+	PUBKEY_ADDRESS_TN = 111,
+	SCRIPT_ADDRESS_TN = 196,
+	SECRET_KEY = 128,
+	SECRET_KEY_TN = 239,
 };
 
 class CBase58Data
@@ -239,6 +243,8 @@ std::string CBase58Data::ToString() const
 
 
 // WRAPPERS
+static int is_testnet = -1;
+
 bool hex_to_bytes(const char* c, unsigned char* res, unsigned int len) {
 	vector<unsigned char> hex = ParseHex(c);
 	if (hex.size() != len)
@@ -251,32 +257,60 @@ const char* contract_str_to_bytes(const char* c, unsigned char* res) {
 	CBase58Data addr;
 	if (!addr.SetString(c))
 		return NULL;
-	if (addr.vchVersion.size() != 1 || addr.vchData.size() != 20 || (addr.vchVersion[0] != SCRIPT_ADDRESS && addr.vchVersion[0] != PUBKEY_ADDRESS))
+	if (addr.vchVersion.size() != 1 || addr.vchData.size() != 20)
 		return NULL;
+
+	if (is_testnet < 0) {
+		is_testnet = (addr.vchVersion[0] == SCRIPT_ADDRESS_TN || addr.vchVersion[0] == PUBKEY_ADDRESS_TN) ? 1 : 0;
+		if (is_testnet == 1)
+			printf("Using testnet!\n");
+		else
+			printf("Using mainnet!\n");
+	}
+
+	if ((is_testnet == 0 && addr.vchVersion[0] != SCRIPT_ADDRESS && addr.vchVersion[0] != PUBKEY_ADDRESS) ||
+		(is_testnet == 1 && addr.vchVersion[0] != SCRIPT_ADDRESS_TN && addr.vchVersion[0] != PUBKEY_ADDRESS_TN))
+		return NULL;
+
 	memcpy(res, &addr.vchData[0], 20);
-	return addr.vchVersion[0] == PUBKEY_ADDRESS ? "P2PH" : "P2SH";
+	return (addr.vchVersion[0] == PUBKEY_ADDRESS || addr.vchVersion[0] == PUBKEY_ADDRESS_TN) ? "P2PH" : "P2SH";
 }
 
 bool privkey_str_to_bytes(const char* c, unsigned char res[33]) {
 	CBase58Data priv;
 	if (!priv.SetString(c))
 		return false;
-	if (priv.vchVersion.size() != 1 || priv.vchData.size() != 33 || priv.vchVersion[0] != SECRET_KEY)
+
+	if (priv.vchVersion.size() != 1 || priv.vchData.size() != 33)
 		return false;
+
+	if (is_testnet < 0) {
+		is_testnet = (priv.vchVersion[0] == SECRET_KEY_TN) ? 1 : 0;
+		if (is_testnet == 1)
+			printf("Using testnet!\n");
+		else
+			printf("Using mainnet!\n");
+	}
+
+	if ((is_testnet == 0 && priv.vchVersion[0] != SECRET_KEY) || (is_testnet == 1 && priv.vchVersion[0] != SECRET_KEY_TN))
+		return false;
+
 	memcpy(res, &priv.vchData[0], 33);
 	return true;
 }
 
 void bytes_to_privkey_str(const unsigned char* c, char* res) {
-	std::vector<unsigned char> version; version.push_back(SECRET_KEY);
+	assert(is_testnet >= 0);
+	std::vector<unsigned char> version; version.push_back(is_testnet == 0 ? SECRET_KEY : SECRET_KEY_TN);
 	CBase58Data priv;
 	priv.SetData(version, c, 33);
 	strcpy(res, priv.ToString().c_str());
 }
 
 void redeemscript_to_p2sh(char* res, unsigned char *redeem_script, unsigned int redeem_script_len) {
+	assert(is_testnet >= 0);
 	uint160 hash(Hash160(redeem_script, redeem_script + redeem_script_len));
-	std::vector<unsigned char> version; version.push_back(SCRIPT_ADDRESS);
+	std::vector<unsigned char> version; version.push_back(is_testnet == 0 ? SCRIPT_ADDRESS : SCRIPT_ADDRESS_TN);
 	CBase58Data addr;
 	addr.SetData(version, &hash, 20);
 	strcpy(res, addr.ToString().c_str());
