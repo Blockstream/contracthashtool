@@ -254,7 +254,7 @@ const char* contract_str_to_bytes(const char* c, unsigned char* res) {
 	if (addr.vchVersion.size() != 1 || addr.vchData.size() != 20 || (addr.vchVersion[0] != SCRIPT_ADDRESS && addr.vchVersion[0] != PUBKEY_ADDRESS))
 		return NULL;
 	memcpy(res, &addr.vchData[0], 20);
-	return addr.vchVersion[0] == PUBKEY_ADDRESS ? "P2PK" : "P2SH";
+	return addr.vchVersion[0] == PUBKEY_ADDRESS ? "P2PH" : "P2SH";
 }
 
 bool privkey_str_to_bytes(const char* c, unsigned char res[33]) {
