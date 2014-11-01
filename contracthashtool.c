@@ -187,6 +187,14 @@ int main(int argc, char* argv[]) {
 			assert(rand);
 		}
 
+		unsigned char data[4 + 16 + (ascii_contract ? strlen(ascii_contract) : 20)];
+		memset(data,                         0,              4);
+		memcpy(data,                         address_type,   strlen(address_type));
+		if (ascii_contract)
+			memcpy(data + 4 + sizeof(nonce), ascii_contract, strlen(ascii_contract));
+		else
+			memcpy(data + 4 + sizeof(nonce), p2sh_bytes,     sizeof(p2sh_bytes));
+
 		unsigned char keys_work[key_count][33];
 		while (true) {
 			for (i = 0; i < key_count; i++)
@@ -194,15 +202,7 @@ int main(int argc, char* argv[]) {
 
 			if (!nonce_hex)
 				assert(fread((char*)nonce, 1, 16, rand) == 16);
-
-			unsigned char data[4 + 16 + (ascii_contract ? strlen(ascii_contract) : 20)];
-			memset(data,                         0,              4);
-			memcpy(data,                         address_type,   strlen(address_type));
 			memcpy(data + 4,                     nonce,          sizeof(nonce));
-			if (ascii_contract)
-			    memcpy(data + 4 + sizeof(nonce), ascii_contract, strlen(ascii_contract));
-			else
-			    memcpy(data + 4 + sizeof(nonce), p2sh_bytes,     sizeof(p2sh_bytes));
 
 			for (i = 0; i < key_count; i++) {
 				unsigned char res[32];
@@ -230,6 +230,9 @@ int main(int argc, char* argv[]) {
 		printf("Nonce: ");
 		for (int i = 0; i < 16; i++)
 			printf("%02x", nonce[i]);
+		printf("\nFull serialized contract: ");
+		for (unsigned int i =0 ; i < 4 + 16 + (ascii_contract ? strlen(ascii_contract) : 20); i++)
+			printf("%02x", data[i]);
 		printf("\nModified redeem script: ");
 		for (unsigned int i = 0; i < redeem_script_len; i++)
 			printf("%02x", redeem_script[i]);
