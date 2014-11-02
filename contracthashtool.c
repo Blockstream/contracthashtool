@@ -25,6 +25,13 @@ void usage() {
 	printf("If you do not care about privacy, anything may be used, otherwise some random value should be used\n");
 	printf("Note that if the nonce is lost, your ability to redeem funds sent to the resulting address is also lost\n");
 	printf("USAGE: Generate privkey: -c -p <base58 private key> (-d <Contract P2SH/regular address>)|(-a <ASCII Contract text>) -n <nonce>\n");
+	printf("\n");
+	printf("Example: contracthashtool -g -r 5121038695b28f1649c711aedb1fec8df54874334cfb7ddf31ba3132a94d00bdc9715251ae -d mqWkEAFeQdrQvyaWNRn5vijPJeiQAjtxL2\n");
+	printf(" Where 5121038695b28f1649c711aedb1fec8df54874334cfb7ddf31ba3132a94d00bdc9715251ae is a hex-encoded Bitcoin script containing public keys in an obvious format (this one is 1-of-1 raw CHECKMULTISIG)\n");
+	printf(" and mqWkEAFeQdrQvyaWNRn5vijPJeiQAjtxL2 is an address which is used to permute the public keys in the above script.\n");
+	printf(" The holder of the private key in 512103... will then need the nonce, and mqWkEAFeQdrQvyaWNRn5vijPJeiQAjtxL2 to claim the funds.\n");
+	printf(" The holder would then do something like contracthashtool -c -p cMcpaCT6pHkyS4347i4rSmecaQtLiu1eH28NWmBiePn8bi6N4kzh -d mgg7ws62sYGqveQQbTUDF7MoVG7nCo5uLB -n 3a11be476485a6273fad4a0e09117d42\n");
+	printf(" They would then have the private key neccessary to claim the funds sent to the address -g... had generated\n");
 }
 
 int get_pubkeys_from_redeemscript(unsigned char *redeem_script, unsigned int redeem_script_len, unsigned char* pubkeys[]) {
