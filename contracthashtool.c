@@ -30,7 +30,7 @@ void usage() {
 	printf(" Where 5121038695b28f1649c711aedb1fec8df54874334cfb7ddf31ba3132a94d00bdc9715251ae is a hex-encoded Bitcoin script containing public keys in an obvious format (this one is 1-of-1 raw CHECKMULTISIG)\n");
 	printf(" and mqWkEAFeQdrQvyaWNRn5vijPJeiQAjtxL2 is an address which is used to permute the public keys in the above script.\n");
 	printf(" The holder of the private key in 512103... will then need the nonce, and mqWkEAFeQdrQvyaWNRn5vijPJeiQAjtxL2 to claim the funds.\n");
-	printf(" The holder would then do something like contracthashtool -c -p cMcpaCT6pHkyS4347i4rSmecaQtLiu1eH28NWmBiePn8bi6N4kzh -d mgg7ws62sYGqveQQbTUDF7MoVG7nCo5uLB -n 3a11be476485a6273fad4a0e09117d42\n");
+	printf(" The holder would then do something like contracthashtool -c -p cMcpaCT6pHkyS4347i4rSmecaQtLiu1eH28NWmBiePn8bi6N4kzh -d mqWkEAFeQdrQvyaWNRn5vijPJeiQAjtxL2 -n 3a11be476485a6273fad4a0e09117d42\n");
 	printf(" They would then have the private key neccessary to claim the funds sent to the address -g... had generated\n");
 }
 
