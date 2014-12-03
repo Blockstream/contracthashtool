@@ -32,6 +32,7 @@ void usage() {
 	printf(" The holder of the private key in 512103... will then need the nonce, and mqWkEAFeQdrQvyaWNRn5vijPJeiQAjtxL2 to claim the funds.\n");
 	printf(" The holder would then do something like contracthashtool -c -p cMcpaCT6pHkyS4347i4rSmecaQtLiu1eH28NWmBiePn8bi6N4kzh -d mqWkEAFeQdrQvyaWNRn5vijPJeiQAjtxL2 -n 3a11be476485a6273fad4a0e09117d42\n");
 	printf(" They would then have the private key neccessary to claim the funds sent to the address -g... had generated\n");
+	//TODO: Also, replace -d/-a/-n with -f for full contract specification (P2SH/P2PH only)
 }
 
 int get_pubkeys_from_redeemscript(unsigned char *redeem_script, unsigned int redeem_script_len, unsigned char* pubkeys[]) {
@@ -106,11 +107,11 @@ int get_pubkeys_from_redeemscript(unsigned char *redeem_script, unsigned int red
 
 int main(int argc, char* argv[]) {
 	char mode = 0; // 0x1 == address, 0x2 == privkey
-	char *redeem_script_hex = NULL, *p2sh_address = NULL, *ascii_contract = NULL, *priv_key_str = NULL, *nonce_hex = NULL;
+	const char *redeem_script_hex = NULL, *p2sh_address = NULL, *ascii_contract = NULL, *priv_key_str = NULL, *nonce_hex = NULL, *fullcontract_hex = NULL;
 
 	// ARGPARSE
 	int i;
-	while ((i = getopt(argc, argv, "gcr:d:p:a:n:h?")) != -1)
+	while ((i = getopt(argc, argv, "gcr:f:d:p:a:n:h?")) != -1)
 		switch(i) {
 		case 'g':
 		case 'c':
@@ -143,6 +144,11 @@ int main(int argc, char* argv[]) {
 				USAGEEXIT("Only one nonce allowed\n");
 			nonce_hex = optarg;
 			break;
+		case 'f':
+			if (fullcontract_hex || ascii_contract || p2sh_address || nonce_hex)
+				USAGEEXIT("-f is mutually exclusive with -d, -a, -n\n");
+			fullcontract_hex = optarg;
+			break;
 		case 'h':
 		case '?':
 			usage();
@@ -152,11 +158,11 @@ int main(int argc, char* argv[]) {
 		}
 
 	// ARGCHECK
-	if (!p2sh_address && !ascii_contract)
+	if (!p2sh_address && !ascii_contract && !fullcontract_hex)
 		USAGEEXIT("No contract provided\n");
 	if (mode == 0x1 && !redeem_script_hex)
 		USAGEEXIT("No redeem script specified\n");
-	if (mode == 0x2 && !nonce_hex)
+	if (mode == 0x2 && !nonce_hex && !fullcontract_hex)
 		USAGEEXIT("No nonce specified\n");
 	if (mode == 0x2 && !priv_key_str)
 		USAGEEXIT("No private key specified\n");
@@ -175,6 +181,23 @@ int main(int argc, char* argv[]) {
 	unsigned char nonce[16];
 	if (nonce_hex && !hex_to_bytes(nonce_hex, nonce, 16))
 		ERROREXIT("Nonce is not a valid 16-byte hex string\n");
+
+	if (fullcontract_hex) {
+		unsigned char fullcontract[40];
+		if (!hex_to_bytes(fullcontract_hex, fullcontract, 40))
+			ERROREXIT("Full contract is not a valid 40-byte hex string\n");
+		if (memcmp(fullcontract, "P2SH", 4) == 0)
+			address_type = "P2SH";
+		else if (memcmp(fullcontract, "P2PH", 4) == 0)
+			address_type = "P2SH";
+		else
+			ERROREXIT("Invalid fullcontract type");
+
+		memcpy(nonce, fullcontract + 4, sizeof(nonce));
+		nonce_hex = "42"; // To make logic below work out
+
+		memcpy(p2sh_bytes, fullcontract + 4 + sizeof(nonce), sizeof(p2sh_bytes));
+	}
 
 	// DOIT
 	if (mode == 0x1) {
