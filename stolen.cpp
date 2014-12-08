@@ -245,6 +245,11 @@ std::string CBase58Data::ToString() const
 // WRAPPERS
 static int is_testnet = -1;
 
+void maybe_set_testnet(int testnet) {
+	if (is_testnet == -1)
+		is_testnet = testnet;
+}
+
 bool hex_to_bytes(const char* c, unsigned char* res, unsigned int len) {
 	vector<unsigned char> hex = ParseHex(c);
 	if (hex.size() != len)

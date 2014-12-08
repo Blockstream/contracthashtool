@@ -4,6 +4,7 @@
 
 
 extern "C" {
+void maybe_set_testnet(int testnet);
 bool hex_to_bytes(const char* c, unsigned char* res, unsigned int len);
 const char* contract_str_to_bytes(const char* c, unsigned char* res);
 bool privkey_str_to_bytes(const char* c, unsigned char res[33]);

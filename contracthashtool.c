@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
 
 	// ARGPARSE
 	int i;
-	while ((i = getopt(argc, argv, "gcr:f:d:p:a:n:h?")) != -1)
+	while ((i = getopt(argc, argv, "gcr:f:d:p:a:n:ht?")) != -1)
 		switch(i) {
 		case 'g':
 		case 'c':
@@ -148,6 +148,9 @@ int main(int argc, char* argv[]) {
 			if (fullcontract_hex || ascii_contract || p2sh_address || nonce_hex)
 				USAGEEXIT("-f is mutually exclusive with -d, -a, -n\n");
 			fullcontract_hex = optarg;
+			break;
+		case 't':
+			maybe_set_testnet(1);
 			break;
 		case 'h':
 		case '?':
@@ -198,6 +201,8 @@ int main(int argc, char* argv[]) {
 
 		memcpy(p2sh_bytes, fullcontract + 4 + sizeof(nonce), sizeof(p2sh_bytes));
 	}
+
+	maybe_set_testnet(0);
 
 	// DOIT
 	if (mode == 0x1) {
