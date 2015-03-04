@@ -246,8 +246,14 @@ std::string CBase58Data::ToString() const
 static int is_testnet = -1;
 
 void maybe_set_testnet(int testnet) {
-	if (is_testnet == -1)
+	if (is_testnet == -1) {
 		is_testnet = testnet;
+		if (is_testnet == 1)
+			printf("Using testnet!\n");
+		else
+			printf("Using mainnet!\n");
+
+	}
 }
 
 bool hex_to_bytes(const char* c, unsigned char* res, unsigned int len) {
