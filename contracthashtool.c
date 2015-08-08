@@ -170,7 +170,7 @@ int main(int argc, char* argv[]) {
 	if (mode == 0x2 && !priv_key_str)
 		USAGEEXIT("No private key specified\n");
 
-	secp256k1_context_t *secp256k1_ctx = secp256k1_context_create((unsigned int) -1);
+	secp256k1_context_t *secp256k1_ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
 
 	// GLOBALCONV
 	unsigned char p2sh_bytes[20];
@@ -242,12 +242,17 @@ int main(int argc, char* argv[]) {
 			for (i = 0; i < key_count; i++) {
 				unsigned char res[32];
 				hmac_sha256(res, keys_work[i], data, 4 + 16 + (ascii_contract ? strlen(ascii_contract) : 20));
-				
-				if (secp256k1_ec_pubkey_tweak_add(secp256k1_ctx, keys_work[i], 33, res) == 0) {
+				secp256k1_pubkey_t pubkey;
+				if (!secp256k1_ec_pubkey_parse(secp256k1_ctx, &pubkey, keys_work[i], 33))
+					ERROREXIT("INVALID PUBLIC KEY IN SCRIPT");
+				if (secp256k1_ec_pubkey_tweak_add(secp256k1_ctx, &pubkey, res) == 0) {
 					if (nonce_hex)
 						ERROREXIT("YOU BROKE SHA256, PLEASE SEND THE EXACT DATA USED IN A BUG REPORT\n");
 					break; // if tweak > order
 				}
+				int len = 33;
+				secp256k1_ec_pubkey_serialize(secp256k1_ctx, keys_work[i], &len, &pubkey, 1);
+				assert(len == 33);
 			}
 			if (i == key_count)
 				break;
@@ -274,6 +279,7 @@ int main(int argc, char* argv[]) {
 		printf("\nModified redeem script as P2SH address: %s\n", p2sh_res);
 	} else if (mode == 0x2) {
 		unsigned char priv[33], pub[33];
+		secp256k1_pubkey_t pubkey;
 		if (!privkey_str_to_bytes(priv_key_str, priv))
 			ERROREXIT("Private key is invalid (or not used as compressed)\n");
 
@@ -287,8 +293,10 @@ int main(int argc, char* argv[]) {
 		    memcpy(data + 4 + sizeof(nonce), p2sh_bytes,     sizeof(p2sh_bytes));
 
 		int len = 0;
-		if (secp256k1_ec_pubkey_create(secp256k1_ctx, pub, &len, priv, 1) != 1 || len != 33)
+		if (secp256k1_ec_pubkey_create(secp256k1_ctx, &pubkey, priv) != 1)
 			ERROREXIT("Private key was invalid\n");
+		secp256k1_ec_pubkey_serialize(secp256k1_ctx, pub, &len, &pubkey, 1);
+		assert(len == 33);
 
 		unsigned char tweak[32];
 		hmac_sha256(tweak, pub, data, 4 + 16 + (ascii_contract ? strlen(ascii_contract) : 20));
