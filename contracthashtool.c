@@ -170,7 +170,7 @@ int main(int argc, char* argv[]) {
 	if (mode == 0x2 && !priv_key_str)
 		USAGEEXIT("No private key specified\n");
 
-	secp256k1_context_t *secp256k1_ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
+	secp256k1_context *secp256k1_ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
 
 	// GLOBALCONV
 	unsigned char p2sh_bytes[20];
@@ -242,7 +242,7 @@ int main(int argc, char* argv[]) {
 			for (i = 0; i < key_count; i++) {
 				unsigned char res[32];
 				hmac_sha256(res, keys_work[i], data, 4 + 16 + (ascii_contract ? strlen(ascii_contract) : 20));
-				secp256k1_pubkey_t pubkey;
+				secp256k1_pubkey pubkey;
 				if (!secp256k1_ec_pubkey_parse(secp256k1_ctx, &pubkey, keys_work[i], 33))
 					ERROREXIT("INVALID PUBLIC KEY IN SCRIPT");
 				if (secp256k1_ec_pubkey_tweak_add(secp256k1_ctx, &pubkey, res) == 0) {
@@ -279,7 +279,7 @@ int main(int argc, char* argv[]) {
 		printf("\nModified redeem script as P2SH address: %s\n", p2sh_res);
 	} else if (mode == 0x2) {
 		unsigned char priv[33], pub[33];
-		secp256k1_pubkey_t pubkey;
+		secp256k1_pubkey pubkey;
 		if (!privkey_str_to_bytes(priv_key_str, priv))
 			ERROREXIT("Private key is invalid (or not used as compressed)\n");
 
