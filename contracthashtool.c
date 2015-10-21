@@ -250,7 +250,7 @@ int main(int argc, char* argv[]) {
 						ERROREXIT("YOU BROKE SHA256, PLEASE SEND THE EXACT DATA USED IN A BUG REPORT\n");
 					break; // if tweak > order
 				}
-				int len = 33;
+				size_t len = 33;
 				secp256k1_ec_pubkey_serialize(secp256k1_ctx, keys_work[i], &len, &pubkey, 1);
 				assert(len == 33);
 			}
@@ -292,7 +292,7 @@ int main(int argc, char* argv[]) {
 		else
 		    memcpy(data + 4 + sizeof(nonce), p2sh_bytes,     sizeof(p2sh_bytes));
 
-		int len = 0;
+		size_t len = 0;
 		if (secp256k1_ec_pubkey_create(secp256k1_ctx, &pubkey, priv) != 1)
 			ERROREXIT("Private key was invalid\n");
 		secp256k1_ec_pubkey_serialize(secp256k1_ctx, pub, &len, &pubkey, 1);
