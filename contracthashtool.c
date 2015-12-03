@@ -251,7 +251,7 @@ int main(int argc, char* argv[]) {
 					break; // if tweak > order
 				}
 				size_t len = 33;
-				secp256k1_ec_pubkey_serialize(secp256k1_ctx, keys_work[i], &len, &pubkey, 1);
+				secp256k1_ec_pubkey_serialize(secp256k1_ctx, keys_work[i], &len, &pubkey, SECP256K1_EC_COMPRESSED);
 				assert(len == 33);
 			}
 			if (i == key_count)
@@ -295,7 +295,7 @@ int main(int argc, char* argv[]) {
 		size_t len = 0;
 		if (secp256k1_ec_pubkey_create(secp256k1_ctx, &pubkey, priv) != 1)
 			ERROREXIT("Private key was invalid\n");
-		secp256k1_ec_pubkey_serialize(secp256k1_ctx, pub, &len, &pubkey, 1);
+		secp256k1_ec_pubkey_serialize(secp256k1_ctx, pub, &len, &pubkey, SECP256K1_EC_COMPRESSED);
 		assert(len == 33);
 
 		unsigned char tweak[32];
