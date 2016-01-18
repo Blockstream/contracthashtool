@@ -292,7 +292,7 @@ int main(int argc, char* argv[]) {
 		else
 		    memcpy(data + 4 + sizeof(nonce), p2sh_bytes,     sizeof(p2sh_bytes));
 
-		size_t len = 0;
+		size_t len = 33;
 		if (secp256k1_ec_pubkey_create(secp256k1_ctx, &pubkey, priv) != 1)
 			ERROREXIT("Private key was invalid\n");
 		secp256k1_ec_pubkey_serialize(secp256k1_ctx, pub, &len, &pubkey, SECP256K1_EC_COMPRESSED);
